@@ -1,17 +1,35 @@
 import random
 print("Welcome To Employee Wage Computation Program")
 
-# UC6:- Calculate Wages till a condition of total working hours or days is reached for a month
-# Assume 100 hours and 20 days
-randomcheck = random.randint(0,9)
-IS_PRESENT = 0
-FULL_TIME_HR = 8
-PART_TIME_HR = 4
-WAGE_PER_HR = 20
-MONTHLY_WORKING_DAYS = 20
-WORKING_HR = 100
+# UC7:- Using Method
 
-if randomcheck%2 == 0 and (WORKING_HR == 100 or MONTHLY_WORKING_DAYS):
-    print("Monthly Wage Is : " ,FULL_TIME_HR*WAGE_PER_HR*MONTHLY_WORKING_DAYS)
-else :
-    print("Part Time Wage:" ,PART_TIME_HR*WAGE_PER_HR*MONTHLY_WORKING_DAYS)
+IS_ABSENT = 0
+IS_PRESENT_FULL_DAY = 1
+IS_PRESENT_PART_TIME = 2
+WAGE_PER_HOUR = 20
+FULL_DAY_HOURS = 8
+PART_TIME_HOURS = 4
+TOTAL_WORKING_DAYS = 20
+TOTAL_WORKING_HOURS = 100
+
+def calculateEmployeeWage():
+    empAttendence = {
+        IS_PRESENT_FULL_DAY : FULL_DAY_HOURS,
+        IS_PRESENT_PART_TIME: PART_TIME_HOURS,
+        IS_ABSENT: 0
+        }
+
+    workingDays = 0
+    totalWorkingHours = 0
+
+    while(workingDays < TOTAL_WORKING_DAYS and totalWorkingHours < TOTAL_WORKING_HOURS):
+        checkEmp = random.randint(0,2)
+        totalWorkingHours = totalWorkingHours + empAttendence.get(checkEmp)
+        workingDays = workingDays + 1
+
+    return totalWorkingHours * WAGE_PER_HOUR
+
+totalWage = calculateEmployeeWage()
+print("Employee total wage is ",totalWage)
+
+
