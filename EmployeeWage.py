@@ -1,8 +1,13 @@
-import random
+
 
 print("Welcome To Employee Wage Computation Program")
 
-# UC10:- Employee Wage For Multiple Company Using Constructor
+# UC10:- Logger Method
+
+import random
+import logging
+
+logging.basicConfig(filename="EmployeeWage.log", filemode="w")
 
 is_absent = 0
 is_present_full_day = 1
@@ -10,63 +15,113 @@ is_present_part_time = 2
 full_day_hours = 8
 part_time_hours = 4
 
-class EmpWage():
-    def __init__(self,wage_per_hour,number_of_working_days,work_hrs_per_month,company):
-        self.wage_per_hour = wage_per_hour
-        self.number_of_working_days = number_of_working_days
-        self.work_hrs_per_month = work_hrs_per_month
-        self.company = company
 
-    def set_total_wage(self,total_wage):
+class CompanyEmpWage:
+
+    def __init__(self, company):
+        self.wage_per_hour = company.get("wage_per_hour")
+        self.number_of_working_days = company.get("number_of_working_days")
+        self.work_hrs_per_month = company.get("work_hrs_per_month")
+        self.company_name = company.get("company_name")
+
+    def set_total_wage(self, total_wage):
         self.total_wage = total_wage
 
     def __str__(self) -> str:
-        return f"Company = {self.company},Total Emp Wage = {self.total_wage}"
+        return f"Company = {self.company_name},Total Emp Wage = {self.total_wage}"
 
-class  EmployeeWage():
+
+class EmployeeWageBuilder:
+
     def __init__(self):
+
         self.company_array = []
 
-    def add_employee(self,wage_per_hour,number_of_working_days,work_hrs_per_month,company):
-        self.company_array.append(EmpWage(wage_per_hour,number_of_working_days,work_hrs_per_month,company))
+    def add_employee(self, company):
 
-    @staticmethod
-    def calculate_daily_wage(wage_per_hour,emp_hrs):
-        return emp_hrs * wage_per_hour
+        self.company_array.append(CompanyEmpWage(company))
+
+    calculate_daily_wage = lambda emp_hrs, wage_per_hour: emp_hrs * wage_per_hour
 
     @staticmethod
     def check_emp_working_hours(check_emp):
+
         emp_attendence = {
             is_present_full_day : full_day_hours,
-            is_present_part_time: part_time_hours,
-            is_absent: 0
-            }
+            is_present_part_time : part_time_hours ,
+            is_absent : 0
+        }
         return emp_attendence.get(check_emp)
 
     def calculate_employee_salary(self, employee):
+
         working_days = 0
         total_working_hours = 0
         total_wage = 0
         while (working_days < employee.number_of_working_days and total_working_hours < employee.work_hrs_per_month):
             check_emp = random.randint(0, 2)
-            emp_hrs = EmployeeWage.check_emp_working_hours(check_emp)
-            total_working_hours = total_working_hours + emp_hrs
-            working_days = working_days + 1
-            total_wage += self.calculate_daily_wage(emp_hrs, employee.wage_per_hour)
+            emp_hrs = EmployeeWageBuilder.check_emp_working_hours(check_emp)
+            total_working_hours += emp_hrs
+            working_days += 1
+            total_wage += EmployeeWageBuilder.calculate_daily_wage(emp_hrs, employee.wage_per_hour)
         return total_wage
 
-
     def calculate_employee_wage(self):
+
         for employee in self.company_array:
             total_wage = self.calculate_employee_salary(employee)
-            EmpWage.set_total_wage(employee, total_wage)
+            CompanyEmpWage.set_total_wage(employee, total_wage)
+
+
+def get_company_data():
+    try:
+        wage_per_hour = int(input("Enter the wage_per_hour\n"))
+        number_of_working_days = int(input("Enter the number_of_working_days\n"))
+        work_hrs_per_month = int(input("Enter the work_hrs_per_month\n"))
+        company = input("Enter the company\n")
+        if len(company) == 0:
+            print(len(company))
+            print("Wrong company name")
+            logger.error("Comapany name could not be empty")
+            return None
+        # setting data in employee details dictionary
+        employee_details_dict = {}
+        employee_details_dict["wage_per_hour"] = wage_per_hour
+        employee_details_dict["number_of_working_days"] = number_of_working_days
+        employee_details_dict["work_hrs_per_month"] = work_hrs_per_month
+        employee_details_dict["company_name"] = company
+        return employee_details_dict
+
+    except Exception as e:
+        print("Invalid details re-enter the data")
+        logger.debug("Invalid details re-enter the data")
+        logger.error(e)
+        return None
 
 
 if __name__ == "__main__":
+
     print("Welcome to Employee Wage Builder")
-    emp_wage = EmployeeWage()
-    emp_wage.add_employee(20, 20, 100, "Accenture")
-    emp_wage.add_employee(30, 25, 110, "DeepCompute")
-    emp_wage.calculate_employee_wage()
-    employees = "\n".join(str(employee) for employee in emp_wage.company_array)
-    print(employees)
+
+    logger = logging.getLogger()
+    logger.setLevel(level=logging.DEBUG)
+
+    emp_wage = EmployeeWageBuilder()
+    try:
+        num_of_companies = int(input("Enter the number of Companies you want to add : \n"))
+        count_company = 1
+
+        while (count_company <= num_of_companies):
+            print(f"Details for Company {count_company}")
+            company = get_company_data()
+            if company:
+                count_company += 1
+                emp_wage.add_employee(company)
+
+        emp_wage.calculate_employee_wage()
+        employees = "\n".join(str(company_data) for company_data in emp_wage.company_array)
+        print(employees)
+
+    except Exception as e:
+        print("number of company should be number")
+        logger.debug("Entered value is invalid for numbers of companys")
